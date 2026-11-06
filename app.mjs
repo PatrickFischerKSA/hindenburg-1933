@@ -3,7 +3,7 @@ const $ = id => document.getElementById(id);
 const question = $('question'), log = $('log'), mic = $('mic'), status = $('speech-status');
 const send = $('send'), micLabel = mic.querySelector('span');
 const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-const defaultHint = Speech ? 'Sprich oder schreibe. Du kannst den erkannten Text vor dem Antworten bearbeiten.' : 'Dieser Browser bietet keine Spracheingabe. Du kannst deinen Beitrag tippen.';
+const defaultHint = Speech ? 'Sprechen oder schreiben Sie. Den erkannten Text können Sie vor dem Antworten bearbeiten.' : 'Dieser Browser bietet keine Spracheingabe. Sie können Ihren Beitrag tippen.';
 let transcript = [], lastTopic, active, state = 'idle';
 status.textContent = defaultHint;
 mic.disabled = !Speech;
@@ -18,7 +18,7 @@ function append(data) {
   transcript.push(data);
   const article = node('article','',data.user ? 'message user' : 'message');
   if (data.user || data.role) {
-    article.append(node('div',data.user ? 'Du' : 'Hindenburg','role'),
+    article.append(node('div',data.user ? 'Sie' : 'Hindenburg','role'),
       node('p',data.user || data.role));
   }
   if (data.note) {
@@ -94,7 +94,7 @@ mic.addEventListener('click',() => {
   if (!Speech) return;
   if (state === 'listening') {
     setState('finishing','Die Sprache wird in Text umgewandelt …');
-    try { active.stop(); } catch { active = undefined; setState('idle','Aufnahme beendet. Du kannst den Text bearbeiten.'); }
+    try { active.stop(); } catch { active = undefined; setState('idle','Aufnahme beendet. Sie können den Text bearbeiten.'); }
     return;
   }
   if (state !== 'idle') return;
@@ -106,7 +106,7 @@ mic.addEventListener('click',() => {
   const base = question.value.trimEnd();
   let finalText = '', error = '';
   session.onstart = () => {
-    if (active === session) setState('listening','Ich höre zu. Sprich jetzt.');
+    if (active === session) setState('listening','Ich höre zu. Sprechen Sie jetzt.');
   };
   session.onresult = event => {
     if (active !== session) return;
@@ -121,23 +121,23 @@ mic.addEventListener('click',() => {
   session.onerror = event => {
     if (active !== session) return;
     error = ({
-      'not-allowed':'Kein Mikrofonzugriff. Erlaube ihn in den Browser-Einstellungen oder tippe.',
-      'service-not-allowed':'Der Browser lässt die Spracherkennung hier nicht zu. Du kannst tippen.',
-      'audio-capture':'Kein Mikrofon verfügbar. Du kannst tippen.',
-      'no-speech':'Keine Sprache erkannt. Versuche es erneut oder tippe.',
-      network:'Die Spracherkennung ist gerade nicht erreichbar. Du kannst tippen.',
-      'language-not-supported':'Der Browser unterstützt die gewählte Sprache nicht. Du kannst tippen.'
-    })[event.error] || 'Spracheingabe unterbrochen. Du kannst tippen.';
+      'not-allowed':'Kein Mikrofonzugriff. Erlauben Sie ihn in den Browsereinstellungen oder tippen Sie Ihren Beitrag.',
+      'service-not-allowed':'Der Browser lässt die Spracherkennung hier nicht zu. Sie können Ihren Beitrag tippen.',
+      'audio-capture':'Kein Mikrofon verfügbar. Sie können Ihren Beitrag tippen.',
+      'no-speech':'Keine Sprache erkannt. Versuchen Sie es erneut oder tippen Sie Ihren Beitrag.',
+      network:'Die Spracherkennung ist gerade nicht erreichbar. Sie können Ihren Beitrag tippen.',
+      'language-not-supported':'Der Browser unterstützt die gewählte Sprache nicht. Sie können Ihren Beitrag tippen.'
+    })[event.error] || 'Spracheingabe unterbrochen. Sie können Ihren Beitrag tippen.';
     status.textContent = error;
   };
   session.onend = () => {
     if (active !== session) return;
     active = undefined;
     question.value = [base,finalText.trim()].filter(Boolean).join(' ').slice(0,1200);
-    setState('idle',error || (finalText ? 'Text erkannt. Prüfe und bearbeite ihn vor dem Senden.' : 'Keine Sprache erkannt. Versuche es erneut oder tippe.'));
+    setState('idle',error || (finalText ? 'Text erkannt. Prüfen und bearbeiten Sie ihn vor dem Senden.' : 'Keine Sprache erkannt. Versuchen Sie es erneut oder tippen Sie Ihren Beitrag.'));
   };
   setState('starting','Der Browser fragt gegebenenfalls nach der Mikrofonfreigabe.');
-  try { session.start(); } catch { active = undefined; setState('idle','Spracheingabe konnte nicht starten. Du kannst tippen.'); }
+  try { session.start(); } catch { active = undefined; setState('idle','Spracheingabe konnte nicht starten. Sie können Ihren Beitrag tippen.'); }
 });
 $('reset').addEventListener('click',() => {
   if ((transcript.length > 1 || question.value.trim() || $('verdict').value.trim() || active) &&
@@ -149,7 +149,7 @@ $('export').addEventListener('click',() => {
   const text = [
     'DER 30. JANUAR 1933 · HISTORISCHES STREITGESPRÄCH',
     'Simulation – Rollenrede ist kein Originalzitat.',
-    ...transcript.map(item => item.user ? 'Du: ' + item.user : [
+    ...transcript.map(item => item.user ? 'Sie: ' + item.user : [
       item.role && 'Hindenburg (simuliert): ' + item.role,
       'Historischer Kommentar: ' + item.note + (item.refs.length ? ' ' + item.refs.map(i => `[${i}]`).join(' ') : '')
     ].filter(Boolean).join('\n')),
