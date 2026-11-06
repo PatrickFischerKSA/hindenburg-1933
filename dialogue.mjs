@@ -22,18 +22,70 @@ const fallback = {
   refs: [], prompts: opening.prompts
 };
 
-export function reply(input, previous) {
-  const text = input.toLowerCase().replaceAll('ä','ae').replaceAll('ö','oe').replaceAll('ü','ue').replaceAll('ß','ss');
-  let topic = order.find(key => topics[key][0].test(text));
-  if (!topic && previous && /^(aber|und|wieso|warum|wie|das|sie|ich|doch)/.test(text)) {
-    if (/^(aber|doch)|stimm.{0,8}nicht|glaube.{0,10}nicht/.test(text)) {
-      const [, , note, refs, prompts] = topics[previous];
-      return {topic:previous, role:'Sie widersprechen meiner Begründung. Nennen Sie ein konkretes Ereignis, das Ihrer Ansicht nach schon damals gegen die Ernennung sprach.', note, refs, prompts};
-    }
-    if (/^(und|wie|wieso|warum).{0,24}[?]?$/.test(text)) topic = {motives:'control',control:'warning',warning:'alternatives',alternatives:'election',election:'control',decree:'act',act:'verdict',verdict:'warning'}[previous];
+// Argumente, die eine präzisere Antwort als das allgemeine Thema brauchen.
+const objections = [
+  { topic: 'control', pattern: /innenminister|\bfrick\b|\bgoering\b|\bpolizei\b/, point: 'die Macht der Nationalsozialisten über die Innenpolitik',
+    role: 'Die Zahl der Ministerposten sagt tatsächlich wenig darüber aus, wer die entscheidenden Ämter innehat. Frick bekommt das Reichsinnenministerium. Ich rechne damit, dass die übrigen Minister ihn begrenzen. Wenn diese Rechnung nicht aufgeht, genügt Papens Sitz im Kabinett allein kaum.' },
+  { topic: 'warning', pattern: /putsch|1923/, point: 'Hitlers Putschversuch von 1923',
+    role: 'Der Putsch von 1923 spricht gegen mein Vertrauen in Hitler. Damals versuchte er, sich mit Gewalt an die Macht zu bringen. Ich setze heute darauf, ihn im Amt durch das Kabinett zu begrenzen. Ihr Einwand trifft die Schwachstelle: Wieso sollte ihn eine Grenze im Kabinett binden, wenn ihn die Verfassung damals nicht gebunden hat?' },
+  { topic: 'warning', pattern: /antisemit|juden|rassis/, point: 'den offenen Antisemitismus der NSDAP',
+    role: 'Sie fragen, was meine Entscheidung für die Menschen bedeutet, gegen die sich die NSDAP richtet. Ihre Feindseligkeit gegenüber Jüdinnen und Juden ist öffentlich. Eine konservative Mehrheit im Kabinett bietet ihnen für sich genommen keinen Schutz. Da hilft mir der Verweis auf die Regierungskrise wenig.' },
+  { topic: 'warning', pattern: /\bsa\b|strassengewalt|gewalt|einschuechter/, point: 'die Gewalt der Nationalsozialisten',
+    role: 'Sie sprechen von der Gewalt auf der Strasse. Die verschwindet nicht, nur weil Hitler einen Platz am Kabinettstisch erhält. Ich erwarte, dass ein Regierungsamt ihn zur Zurückhaltung zwingt. Sie halten mir entgegen, dass es ihm vielmehr Einfluss auf diejenigen verschafft, die gegen diese Gewalt vorgehen müssten.' },
+  { topic: 'election', pattern: /33\s*%|33\s*prozent|keine\w* (eigene |absolute )?mehrheit|keine\w* mandat|stimmenverlust|stimmen verloren/, point: 'das fehlende Mehrheitsmandat der NSDAP',
+    role: 'Die NSDAP hat keine eigene Mehrheit. Ich kann mich also nicht darauf berufen, dass die Wähler mir diese Ernennung vorgeschrieben hätten. Ich habe entschieden, Hitler mit den Konservativen regieren zu lassen. Ob diese Regierung im Reichstag eine Mehrheit findet, ist eine andere Frage.' },
+  { topic: 'alternatives', pattern: /schleicher.{0,35}(lassen|behalt|bleib|weitermach)|schleicher.{0,35}(zurueckhol|zurueckkehr)|weitere verhandlung|weiter verhandel/, point: 'eine Fortsetzung der Verhandlungen',
+    role: 'Ich hätte weiter verhandeln können. Schleicher hatte für seine Regierung jedoch keine tragfähige Mehrheit gefunden. Mehr Zeit hätte dieses Problem nicht von selbst gelöst. Sie fragen mit Recht, ob ich die Unsicherheit weiterer Verhandlungen hätte hinnehmen sollen, bevor ich Hitler das Kanzleramt überliess.' },
+  { topic: 'control', pattern: /zu (naiv|optimistisch)|unterschaetz|machtmittel|wer.{0,25}kontrollier|kontrollier.{0,30}(nicht|unmoeglich)/, point: 'die Grenzen von Papens Einfluss',
+    role: 'Papen kann Hitler im Kabinett widersprechen. Er kann dem Kanzler aber nicht einfach seine Entscheidungen vorschreiben. Meine Rechnung setzt voraus, dass die konservativen Minister geschlossen auftreten und Hitler auf sie angewiesen bleibt. Ihr Einwand ist, dass genau das nicht gesichert ist.' }
+];
+const topicPoints = {
+  motives: 'die Regierungskrise', control: 'Papens Plan, Hitler im Kabinett zu begrenzen',
+  election: 'die Stärke der NSDAP im Reichstag', alternatives: 'andere Wege aus der Regierungskrise',
+  warning: 'die erkennbaren Warnzeichen', verdict: 'meine Verantwortung für die Ernennung'
+};
+const followups = {
+  motives: 'Nach Schleichers Scheitern wollte ich rasch eine Regierung bilden. Das erklärt die Eile. Ob sie es rechtfertigte, einem Gegner der Republik die Regierung zu überlassen, ist eine Frage, der ich mich stellen muss.',
+  control: 'Meine Annahme war, dass Hitler ohne die Konservativen im Kabinett wenig ausrichten könne. Sie fragen, worauf diese Annahme beruht. Ein gemeinsames Kabinett bindet ihn nur, solange die Minister ihre Stellung auch tatsächlich nutzen können.',
+  election: 'Die Wähler bestimmten die Zusammensetzung des Reichstags. Die Ernennung zum Kanzler habe ich vorgenommen. Für diese Entscheidung kann ich die Verantwortung nicht auf das Wahlergebnis abwälzen.',
+  alternatives: 'Eine weitere Suche hätte Zeit gekostet und womöglich wieder keine Mehrheit ergeben. Trotzdem war es meine Entscheidung, die Suche abzubrechen und Papens Vorschlag anzunehmen.',
+  warning: 'Dass ich auf das Kabinett vertraue, lässt die Warnzeichen nicht verschwinden. Ich habe eine Möglichkeit zur Kontrolle angenommen, obwohl ich wusste, dass Hitler bereits Gewalt gegen die Republik eingesetzt hatte.',
+  verdict: 'Ich habe Papens Vorschlag angenommen und Hitler ernannt. Auch wenn andere mir dazu rieten, lag die Entscheidung bei mir.'
+};
+function normalize(input) {
+  return input.toLowerCase().replaceAll('ä','ae').replaceAll('ö','oe').replaceAll('ü','ue').replaceAll('ß','ss');
+}
+
+export function reply(input, transcript = []) {
+  const text = normalize(input);
+  const history = transcript.filter(turn => turn.topic && turn.point);
+  const previous = history.at(-1);
+  const objection = objections.find(item => item.pattern.test(text));
+  const detected = order.find(key => topics[key][0].test(text));
+  let topic = ['decree', 'act'].includes(detected) ? detected : objection?.topic || detected;
+  const explicitReference = /\b(vorhin|zuvor|vorher|noch einmal|mein\w* (?:erst\w*|urspruenglich\w*) einwand)\b/.test(text);
+  const first = /\b(erst\w*|urspruenglich\w*)\b/.test(text);
+  const followup = /^(aber|doch|und (was|wie|warum|wieso)|warum|wieso|wie (denn|genau)|das|genau|was (meinen|heisst))\b/.test(text);
+  const genericTopic = !topic || topic === 'motives' && (/^(warum|wieso|weshalb|weswegen)[?! .]*$/.test(text) || explicitReference || /\b(das|daran|darauf|damit|ihn|ihm)\b/.test(text));
+  const recalled = explicitReference && first ? history[0]
+    : explicitReference || (genericTopic && followup) ? previous : undefined;
+
+  if (!objection && recalled && (genericTopic || explicitReference && topic === recalled.topic)) {
+    topic = recalled.topic;
+    const [, , note, refs, prompts] = topics[topic];
+    return {topic, point: recalled.point, role: `Kommen wir auf ${recalled.point} zurück. ${followups[topic]}`, note, refs, prompts};
   }
   if (!topic) return fallback;
-  const [,role,note,refs,prompts] = topics[topic];
-  if (topic === previous) return {topic, role:role ? 'Sie lassen mir das Argument also noch nicht durchgehen. Sagen Sie mir, an welcher Stelle Sie mir widersprechen. Dann können wir über genau diesen Punkt sprechen.' : null, note, refs, prompts};
-  return {topic,role,note,refs,prompts};
+
+  const [, initialRole, note, refs, prompts] = topics[topic];
+  if (!initialRole) return {topic, role: null, note, refs, prompts};
+
+  const point = objection?.point || topicPoints[topic];
+  const related = explicitReference ? (first ? history[0] : history.findLast(turn => turn.topic === topic) || previous)
+    : history.findLast(turn => turn.point === point);
+  const bridge = related && related.point !== point
+    ? `Sie hatten bereits ${related.point} angesprochen. Jetzt kommt ein weiterer Punkt hinzu. `
+    : related ? `Sie kommen auf ${point} zurück. ` : '';
+  const role = bridge + (related?.point === point ? followups[topic] : objection?.role || initialRole);
+  return {topic, point, role, note, refs, prompts};
 }
