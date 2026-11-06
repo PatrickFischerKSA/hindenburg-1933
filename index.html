@@ -6,7 +6,7 @@
 <meta name="description" content="Ein inszeniertes Gespräch mit Paul von Hindenburg am 30. Januar 1933.">
 <title>Im Gespräch mit Hindenburg · 30. Januar 1933</title>
 <link rel="stylesheet" href="./gespraech.css">
-<script type="module" src="./app.mjs?v=gespraech"></script>
+<script type="module" src="./app.mjs?v=siezen"></script>
 </head>
 <body>
 <a class="skip" href="#question">Zum Gespräch</a>
@@ -14,18 +14,18 @@
   <header class="scene">
     <p class="eyebrow">Berlin · Reichspräsidentenpalais · 30. Januar 1933</p>
     <h1>Paul von<br>Hindenburg</h1>
-    <p class="stage">Hitler ist soeben zum Reichskanzler ernannt worden. Hindenburg bittet dich herein.</p>
+    <p class="stage">Hitler ist soeben zum Reichskanzler ernannt worden. Hindenburg bittet Sie herein.</p>
     <span class="fiction">Fiktives Gespräch auf historischer Grundlage</span>
   </header>
   <section class="chat" aria-label="Gespräch mit Paul von Hindenburg">
     <div id="log" class="log" role="log" aria-label="Gesprächsverlauf" tabindex="0"></div>
     <div class="compose">
       <form id="form">
-<label for="question">Was möchtest du sagen?</label>
+<label for="question">Was möchten Sie sagen?</label>
 <textarea id="question" rows="2" maxlength="1200" placeholder="Herr von Hindenburg, warum …" required></textarea>
 <div class="actions"><button type="button" id="mic" aria-pressed="false"><svg aria-hidden="true" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3m-4 0h8"/></svg><span>Mikrofon</span></button><button type="submit" class="primary" id="send">Antworten <span aria-hidden="true">↗</span></button></div>
-<p class="hint" id="speech-status" role="status">Du kannst sprechen oder schreiben.</p>
-<details class="privacy"><summary>Hinweis zur Spracheingabe</summary><p>Je nach Browser kann deine Aufnahme zur Erkennung an den Browseranbieter übertragen werden. Die Website selbst speichert weder Audio noch Gesprächsdaten. Du kannst jederzeit tippen.</p></details>
+<p class="hint" id="speech-status" role="status">Sie können sprechen oder schreiben.</p>
+<details class="privacy"><summary>Hinweis zur Spracheingabe</summary><p>Je nach Browser kann Ihre Aufnahme zur Erkennung an den Browseranbieter übertragen werden. Die Website selbst speichert weder Audio noch Gesprächsdaten. Sie können jederzeit tippen.</p></details>
 </form>
       <details class="impulses"><summary>Wie könnte ich anknüpfen?</summary><div id="prompts" class="prompts"></div></details>
     </div>
@@ -41,8 +41,8 @@
     </details>
     <details><summary>Notiz und Gesprächsprotokoll</summary>
       <div class="extra">
-        <label for="verdict">Deine persönliche Notiz</label>
-        <textarea id="verdict" rows="3" maxlength="4000" placeholder="Was bleibt dir von der Begegnung?"></textarea>
+        <label for="verdict">Ihre persönliche Notiz</label>
+        <textarea id="verdict" rows="3" maxlength="4000" placeholder="Was bleibt Ihnen von der Begegnung?"></textarea>
         <div class="actions"><button type="button" id="reset">Gespräch neu starten</button><button type="button" id="export">Protokoll herunterladen</button></div>
       </div>
     </details>
