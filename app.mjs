@@ -1,10 +1,10 @@
-import {opening,reply} from './dialogue.mjs?v=gespraech';
+import {opening,reply} from './dialogue.mjs?v=einwaende';
 const $ = id => document.getElementById(id);
 const question = $('question'), log = $('log'), mic = $('mic'), status = $('speech-status');
 const send = $('send'), micLabel = mic.querySelector('span');
 const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
 const defaultHint = Speech ? 'Sprechen oder schreiben Sie. Den erkannten Text können Sie vor dem Antworten bearbeiten.' : 'Dieser Browser bietet keine Spracheingabe. Sie können Ihren Beitrag tippen.';
-let transcript = [], lastTopic, active, state = 'idle';
+let transcript = [], active, state = 'idle';
 status.textContent = defaultHint;
 mic.disabled = !Speech;
 
@@ -60,7 +60,6 @@ function reset() {
   }
   setState('idle',defaultHint);
   transcript = [];
-  lastTopic = undefined;
   log.replaceChildren();
   question.value = '';
   $('verdict').value = '';
@@ -71,8 +70,7 @@ $('form').addEventListener('submit',event => {
   event.preventDefault();
   const input = question.value.trim();
   if (!input || state !== 'idle') return;
-  const answer = reply(input,lastTopic);
-  lastTopic = answer.topic || lastTopic;
+  const answer = reply(input,transcript);
   append({user:input});
   append(answer);
   showPrompts(answer.prompts);
