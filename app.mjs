@@ -1,4 +1,4 @@
-import {opening,reply} from './dialogue.mjs?v=einwaende';
+import {opening,generateReply} from './dialogue.mjs?v=1935';
 const $ = id => document.getElementById(id);
 const question = $('question'), log = $('log'), mic = $('mic'), status = $('speech-status');
 const send = $('send'), micLabel = mic.querySelector('span');
@@ -66,23 +66,40 @@ function reset() {
   append(opening);
   showPrompts(opening.prompts);
 }
-$('form').addEventListener('submit',event => {
+$('form').addEventListener('submit',async event => {
   event.preventDefault();
   const input = question.value.trim();
   if (!input || state !== 'idle') return;
-  const answer = reply(input,transcript);
-  append({user:input});
-  append(answer);
-  showPrompts(answer.prompts);
-  question.value = '';
-  question.focus({preventScroll:true});
-  log.scrollTop = log.scrollHeight;
+  setState('thinking','Das Gesprächsmodell wird vorbereitet …');
+  let message = defaultHint;
+  try {
+    const answer = await generateReply(input,transcript,percent => {
+      status.textContent = percent < 100
+        ? `Das Modell wird auf dieses Gerät geladen … ${percent} %`
+        : 'Hindenburg formuliert seine Antwort …';
+    });
+    append({user:input});
+    append(answer);
+    question.value = '';
+    log.scrollTop = log.scrollHeight;
+  } catch (error) {
+    console.error(error);
+    if (/WebGPU/.test(error.message) && !navigator.gpu) message = error.message;
+    else if (/context window|context length|ContextWindow|exceed.*context/i.test(error.message)) {
+      message = 'Der Gesprächsverlauf ist für das Modell zu lang. Sie können das Protokoll herunterladen und ein neues Gespräch beginnen.';
+    } else {
+      message = 'Die Antwort konnte nicht erzeugt werden. Prüfen Sie die Verbindung und die WebGPU-Unterstützung Ihres Geräts. Ihr Beitrag bleibt im Eingabefeld.';
+    }
+  } finally {
+    setState('idle',message);
+    question.focus({preventScroll:true});
+  }
 });
 function setState(next,message) {
   state = next;
-  mic.setAttribute('aria-pressed',String(next !== 'idle'));
-  micLabel.textContent = next === 'listening' ? 'Aufnahme stoppen' : next === 'idle' ? 'Mikrofon' : next === 'starting' ? 'Mikrofon startet …' : 'Wird erkannt …';
-  mic.disabled = !Speech || next === 'starting' || next === 'finishing';
+  mic.setAttribute('aria-pressed',String(['starting','listening','finishing'].includes(next)));
+  micLabel.textContent = next === 'listening' ? 'Aufnahme stoppen' : ['idle','thinking'].includes(next) ? 'Mikrofon' : next === 'starting' ? 'Mikrofon startet …' : 'Wird erkannt …';
+  mic.disabled = !Speech || !['idle','listening'].includes(next);
   send.disabled = next !== 'idle';
   question.readOnly = next !== 'idle';
   for (const button of $('prompts').querySelectorAll('button')) button.disabled = next !== 'idle';
@@ -138,6 +155,7 @@ mic.addEventListener('click',() => {
   try { session.start(); } catch { active = undefined; setState('idle','Spracheingabe konnte nicht starten. Sie können Ihren Beitrag tippen.'); }
 });
 $('reset').addEventListener('click',() => {
+  if (state === 'thinking') return;
   if ((transcript.length > 1 || question.value.trim() || $('verdict').value.trim() || active) &&
       !window.confirm('Gespräch, Entwurf und Urteil löschen und neu starten?')) return;
   reset();
@@ -145,19 +163,19 @@ $('reset').addEventListener('click',() => {
 });
 $('export').addEventListener('click',() => {
   const text = [
-    'DER 30. JANUAR 1933 · HISTORISCHES STREITGESPRÄCH',
+    '31. DEZEMBER 1935 · FIKTIVES GESPRÄCH',
     'Simulation – Rollenrede ist kein Originalzitat.',
     ...transcript.map(item => item.user ? 'Sie: ' + item.user : [
       item.role && 'Hindenburg (simuliert): ' + item.role,
-      'Historischer Kommentar: ' + item.note + (item.refs.length ? ' ' + item.refs.map(i => `[${i}]`).join(' ') : '')
+      item.note && 'Historischer Kommentar: ' + item.note
     ].filter(Boolean).join('\n')),
     'Meine Notiz:\n' + ($('verdict').value.trim() || '—'),
-    'Quellen:\n' + [...document.querySelectorAll('.sources li a')].map((a,i)=> `[${i+1}] ${a.href}`).join('\n')
+    'Quellen:\n' + [...document.querySelectorAll('#quellen li a')].map((a,i)=> `[${i+1}] ${a.href}`).join('\n')
   ].join('\n\n');
   const url = URL.createObjectURL(new Blob([text],{type:'text/plain;charset=utf-8'}));
   const a = node('a');
   a.href = url;
-  a.download = 'streitgespraech-30-januar-1933.txt';
+  a.download = 'gespraech-hindenburg-1935.txt';
   document.body.append(a);
   a.click();
   a.remove();
