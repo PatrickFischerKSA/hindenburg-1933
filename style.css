@@ -10,23 +10,30 @@
   position: absolute;
   z-index: -2;
   inset: -8px;
-  background: url("./hindenburg-portraet.svg") right 12% top 8% / clamp(300px, 46vw, 560px) auto no-repeat;
-  filter: blur(4px);
-  opacity: .58;
+  background: url("./hindenburg-portraet.svg") right -14px top 4% / clamp(320px, 41vw, 520px) auto no-repeat;
+  filter: blur(1.2px);
+  opacity: .86;
 }
 .intro::after {
   content: "";
   position: absolute;
   z-index: -1;
   inset: 0;
-  background: linear-gradient(90deg, var(--paper) 15%, rgba(245, 241, 231, .97) 43%, rgba(245, 241, 231, .23) 100%);
+  background: linear-gradient(90deg, var(--paper) 39%, rgba(245, 241, 231, .96) 57%, rgba(245, 241, 231, .08) 90%);
 }
 @media (max-width: 740px) {
+  .intro {
+    padding-top: 10rem;
+  }
   .intro::before {
-    background-position: right -35px top 8%;
-    opacity: .38;
+    inset: 0 0 auto;
+    height: 13rem;
+    background-position: right top 12%;
+    background-size: min(100%, 330px) auto;
   }
   .intro::after {
-    background: linear-gradient(90deg, var(--paper), rgba(245, 241, 231, .48));
+    background:
+      linear-gradient(180deg, transparent 2rem, var(--paper) 11rem),
+      linear-gradient(90deg, var(--paper), transparent 80%);
   }
 }
