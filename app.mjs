@@ -1,9 +1,9 @@
-import {opening,reply} from './dialogue.mjs';
+import {opening,reply} from './dialogue.mjs?v=gespraech';
 const $ = id => document.getElementById(id);
 const question = $('question'), log = $('log'), mic = $('mic'), status = $('speech-status');
 const send = $('send'), micLabel = mic.querySelector('span');
 const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-const defaultHint = Speech ? 'Sprich deinen Beitrag ein. Prüfe danach den Text und sende ihn ab.' : 'Dieser Browser bietet keine Spracheingabe. Du kannst deinen Beitrag tippen.';
+const defaultHint = Speech ? 'Sprich oder schreibe. Du kannst den erkannten Text vor dem Antworten bearbeiten.' : 'Dieser Browser bietet keine Spracheingabe. Du kannst deinen Beitrag tippen.';
 let transcript = [], lastTopic, active, state = 'idle';
 status.textContent = defaultHint;
 mic.disabled = !Speech;
@@ -18,16 +18,20 @@ function append(data) {
   transcript.push(data);
   const article = node('article','',data.user ? 'message user' : 'message');
   if (data.user || data.role) {
-    article.append(node('div',data.user ? 'Du' : 'Hindenburg · simulierte Rollenrede','role'),
+    article.append(node('div',data.user ? 'Du' : 'Hindenburg','role'),
       node('p',data.user || data.role));
   }
   if (data.note) {
-    const context = node('div','','context');
-    context.append(node('div','Historischer Kommentar','role'),node('p',data.note));
+    const context = node(data.role ? 'details' : 'div','','context');
+    context.append(node(data.role ? 'summary' : 'div',data.role ? 'Historische Einordnung' : 'Blick aus der Szene · spätere Ereignisse'),node('p',data.note));
     for (const ref of data.refs) {
       const link = node('a',`[${ref}]`);
       link.href = `#quelle-${ref}`;
       link.setAttribute('aria-label',`Zur Quelle ${ref}`);
+      link.addEventListener('click',() => {
+        const sources = $('quellen');
+        if (sources) sources.open = true;
+      });
       context.append(link,' ');
     }
     article.append(context);
@@ -149,7 +153,7 @@ $('export').addEventListener('click',() => {
       item.role && 'Hindenburg (simuliert): ' + item.role,
       'Historischer Kommentar: ' + item.note + (item.refs.length ? ' ' + item.refs.map(i => `[${i}]`).join(' ') : '')
     ].filter(Boolean).join('\n')),
-    'Mein historisches Urteil:\n' + ($('verdict').value.trim() || '—'),
+    'Meine Notiz:\n' + ($('verdict').value.trim() || '—'),
     'Quellen:\n' + [...document.querySelectorAll('.sources li a')].map((a,i)=> `[${i+1}] ${a.href}`).join('\n')
   ].join('\n\n');
   const url = URL.createObjectURL(new Blob([text],{type:'text/plain;charset=utf-8'}));
