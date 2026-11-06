@@ -1,0 +1,73 @@
+:root {
+  color-scheme: dark;
+  --ink: #f3ebdb;
+  --muted: #c9bda6;
+  --line: #615849;
+  --warm: #dfbe86;
+  background: #211e19;
+  color: var(--ink);
+  font: 1rem/1.55 system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+body { margin: 0; }
+button, textarea { font: inherit; }
+a { color: var(--warm); }
+:focus-visible { outline: 2px solid var(--warm); outline-offset: 4px; }
+.skip { position: absolute; z-index: 2; left: 1rem; top: -4rem; padding: .5rem; background: #211e19; }
+.skip:focus { top: 1rem; }
+.room { max-width: 58rem; margin: auto; padding: 0 clamp(1rem, 4vw, 2.5rem) 2rem; }
+.scene {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: clamp(1.5rem, 5vw, 3.5rem) 0 1.6rem;
+  border-bottom: 1px solid var(--line);
+}
+.scene::before, .scene::after { content: ""; position: absolute; inset: 0; z-index: -1; }
+.scene::before {
+  background: url("./hindenburg-portraet.svg") no-repeat right -1rem top 7% / clamp(19rem, 53vw, 30rem) auto;
+  filter: sepia(.18) blur(.7px);
+  opacity: .91;
+}
+.scene::after {
+  background: linear-gradient(90deg, #211e19 30%, #211e19e0 47%, transparent 78%),
+              linear-gradient(0deg, #211e19 0%, transparent 46%);
+}
+.eyebrow, .fiction, .role { color: var(--warm); font-size: .73rem; font-weight: 700; letter-spacing: .09em; }
+.eyebrow { text-transform: uppercase; margin: 0; }
+h1 { font: 500 clamp(3rem, 8vw, 5.2rem)/.98 Georgia, serif; letter-spacing: -.045em; margin: .65rem 0; }
+.stage { max-width: 26rem; color: var(--muted); margin: .8rem 0; }
+.fiction { color: var(--muted); letter-spacing: .025em; }
+.chat { margin-top: 1rem; }
+.log { max-height: 27rem; overflow: auto; overscroll-behavior: contain; padding: .1rem .4rem .1rem .1rem; }
+.message { width: fit-content; max-width: min(100%, 45rem); margin: 0 0 .7rem; padding: .8rem 1rem; border: 1px solid var(--line); border-radius: 3px 14px 14px; background: #302a22; overflow-wrap: anywhere; }
+.message.user { margin-left: auto; border-radius: 14px 3px 14px 14px; background: #383b32; }
+.message p { margin: .15rem 0; white-space: pre-wrap; }
+.message:not(.user) > p { font: 1.19rem/1.52 Georgia, serif; }
+.role { text-transform: uppercase; }
+.context { margin-top: .5rem; color: var(--muted); font-size: .84rem; }
+summary { cursor: pointer; }
+.compose { padding-top: .7rem; border-top: 1px solid var(--line); }
+label { display: block; margin-bottom: .25rem; font-weight: 650; }
+textarea { display: block; width: 100%; resize: vertical; border: 1px solid var(--line); border-radius: 8px; padding: .6rem .75rem; background: #181612; color: var(--ink); }
+textarea::placeholder { color: var(--muted); }
+.actions { display: flex; justify-content: space-between; gap: .5rem; flex-wrap: wrap; margin-top: .5rem; }
+button { display: inline-flex; align-items: center; gap: .45rem; border: 1px solid var(--line); border-radius: 7px; background: #302a22; color: var(--ink); cursor: pointer; font-weight: 650; padding: .5rem .75rem; }
+button:hover, button[aria-pressed="true"] { background: #504335; }
+button:disabled { opacity: .6; cursor: default; }
+button.primary { background: var(--warm); color: #211e19; }
+button.primary:hover { background: #f3d5a1; }
+.hint, .privacy, .impulses, .after { color: var(--muted); font-size: .86rem; }
+.hint { margin: .45rem 0 .2rem; }
+.privacy, .impulses { margin-top: .3rem; }
+.prompts { display: flex; flex-wrap: wrap; gap: .35rem; margin: .35rem 0; }
+.after { margin-top: 1.15rem; }
+.after > details { border-top: 1px solid var(--line); padding: .55rem 0; }
+.extra { padding: .3rem .65rem .55rem; }
+li:target { background: #504335; }
+@media (max-width: 620px) {
+  .scene { padding-top: 8.8rem; }
+  .scene::before { background-position: right top 6%; background-size: min(100%, 20rem) auto; }
+  .scene::after { background: linear-gradient(0deg, #211e19 21%, #211e19ed 48%, transparent 83%), linear-gradient(90deg, #211e19, transparent 65%); }
+  .log { max-height: 22rem; }
+}
