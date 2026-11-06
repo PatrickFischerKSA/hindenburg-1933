@@ -1,4 +1,4 @@
-import {opening,generateReply} from './dialogue.mjs?v=1935-2';
+import {opening,generateReply} from './dialogue.mjs?v=1934-08-01';
 const $ = id => document.getElementById(id);
 const question = $('question'), log = $('log'), mic = $('mic'), status = $('speech-status');
 const send = $('send'), micLabel = mic.querySelector('span');
@@ -163,7 +163,7 @@ $('reset').addEventListener('click',() => {
 });
 $('export').addEventListener('click',() => {
   const text = [
-    '31. DEZEMBER 1935 · FIKTIVES GESPRÄCH',
+    '1. AUGUST 1934 · FIKTIVES GESPRÄCH',
     'Simulation – Rollenrede ist kein Originalzitat.',
     ...transcript.map(item => item.user ? 'Sie: ' + item.user : [
       item.role && 'Hindenburg (simuliert): ' + item.role,
@@ -175,7 +175,7 @@ $('export').addEventListener('click',() => {
   const url = URL.createObjectURL(new Blob([text],{type:'text/plain;charset=utf-8'}));
   const a = node('a');
   a.href = url;
-  a.download = 'gespraech-hindenburg-1935.txt';
+  a.download = 'gespraech-hindenburg-1934-08-01.txt';
   document.body.append(a);
   a.click();
   a.remove();
