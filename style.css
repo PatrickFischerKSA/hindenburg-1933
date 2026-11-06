@@ -1,1 +1,32 @@
 :root{color-scheme:light;--paper:#f5f1e7;--card:#fffdf7;--ink:#262820;--dim:#56574c;--olive:#303e32;--rust:#873e2e;--line:#d7d0c0;--serif:Georgia,'Times New Roman',serif}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font:1rem/1.55 system-ui,sans-serif}button,textarea{font:inherit}button,a,summary{touch-action:manipulation}a{color:var(--rust);text-underline-offset:.2em}button:focus-visible,a:focus-visible,summary:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{outline:3px solid #946115;outline-offset:3px}.skip{position:absolute;left:1rem;top:-5rem;background:white;padding:.5rem;z-index:2}.skip:focus{top:1rem}.mast,footer{background:var(--olive);color:#f6f0dc;padding:.85rem max(1.1rem,calc((100vw - 1120px)/2));display:flex;justify-content:space-between;gap:.75rem;font-size:.73rem;letter-spacing:.13em;font-weight:700}main{max-width:1160px;margin:auto;padding:0 20px}.intro{padding:clamp(2rem,6vw,4.6rem) 0 2rem;border-bottom:1px solid var(--line);margin-bottom:1.6rem}.eyebrow{font-size:.76rem;font-weight:800;letter-spacing:.15em;color:var(--rust);margin:0 0 .5rem}h1,h2{font-family:var(--serif);font-weight:500;line-height:1.08;margin:0}h1{font-size:clamp(2.7rem,8vw,5.65rem);letter-spacing:-.048em}.intro>p:last-child{max-width:46rem;margin:1rem 0 0;color:var(--dim);font-size:clamp(1rem,2vw,1.18rem)}h2{font-size:1.65rem}.layout{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:1.15rem;align-items:start}.chat,.dossier{background:var(--card);border:1px solid var(--line);border-radius:12px}.chat-head{padding:1rem 1.25rem;display:flex;align-items:center;gap:.85rem;border-bottom:1px solid var(--line)}.chat-head p,.hint,.privacy{font-size:.83rem;color:var(--dim);margin:.2rem 0 0}.seal{display:grid;place-items:center;flex:0 0 2.8rem;height:2.8rem;border-radius:50%;background:var(--olive);color:#fff7df;font:1.5rem var(--serif)}.log{min-height:13rem;max-height:32rem;overflow:auto;padding:1rem 1.25rem;overscroll-behavior:contain;overflow-wrap:anywhere}.message{margin:0 0 .8rem;padding:.75rem 1rem;border-left:3px solid var(--olive);background:#f2f0e6;border-radius:0 8px 8px 0}.message p{margin:.25rem 0;white-space:pre-wrap}.message.user{border-color:#9d5d39;background:#f6eadf;margin-left:clamp(.75rem,4vw,3rem)}.role{font-weight:800;font-size:.73rem;letter-spacing:.08em;text-transform:uppercase}.context{border-top:1px solid var(--line);margin-top:.65rem;padding-top:.55rem;color:var(--dim);font-size:.91rem}.compose{border-top:1px solid var(--line);padding:1rem 1.25rem}.prompts{display:flex;gap:.45rem;flex-wrap:wrap;margin-bottom:.8rem}.prompts button{font-size:.82rem;border-radius:20px;padding:.32rem .7rem}.actions{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.6rem;margin-top:.55rem}button{border:1px solid var(--line);border-radius:7px;background:var(--card);color:var(--ink);cursor:pointer;padding:.54rem .85rem;display:inline-flex;align-items:center;justify-content:center;gap:.48rem;font-weight:650}button:hover{background:#eee9dc}button:disabled{opacity:.65;cursor:default}button.primary{background:var(--olive);color:white;border-color:var(--olive)}button.primary:hover{background:#435644}button[aria-pressed=true]{background:#f7e2d8;color:var(--rust);border-color:var(--rust)}label{display:block;font-weight:650;margin-bottom:.3rem}textarea{display:block;width:100%;resize:vertical;background:white;color:var(--ink);border:1px solid #a9a394;border-radius:7px;padding:.62rem .7rem}.dossier{padding:1.15rem 1.25rem;margin-bottom:1rem}.dossier h2{margin-bottom:.7rem}.dossier details{padding:.58rem 0;border-top:1px solid var(--line)}summary{cursor:pointer;font-weight:650}.dossier p:not(.eyebrow),.dossier ol{margin:.45rem 0}.dossier ol{padding-left:1.3rem}.dossier li+li{margin-top:.35rem}.assignment{background:#ebece0}.assignment>a{display:inline-block;margin-top:.55rem}.reflection{margin:1.4rem 0}.sources{margin:2rem 0;color:var(--dim);font-size:.92rem}.sources ol{padding-left:1.25rem}.sources li:target{background:#f0dfb5}footer span{letter-spacing:0;font-weight:500}@media(max-width:740px){.layout{grid-template-columns:1fr}.wide{display:none}.log{max-height:25rem}.mast{letter-spacing:.07em}.chat-head,.log,.compose{padding-left:.85rem;padding-right:.85rem}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+.intro {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+.intro::before {
+  content: "";
+  position: absolute;
+  z-index: -2;
+  inset: -8px;
+  background: url("./hindenburg-portraet.svg") right 12% top 8% / clamp(300px, 46vw, 560px) auto no-repeat;
+  filter: blur(4px);
+  opacity: .58;
+}
+.intro::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: linear-gradient(90deg, var(--paper) 15%, rgba(245, 241, 231, .97) 43%, rgba(245, 241, 231, .23) 100%);
+}
+@media (max-width: 740px) {
+  .intro::before {
+    background-position: right -35px top 8%;
+    opacity: .38;
+  }
+  .intro::after {
+    background: linear-gradient(90deg, var(--paper), rgba(245, 241, 231, .48));
+  }
+}
