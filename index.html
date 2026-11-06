@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Ein historisches Streitgespräch zur Ernennung Hitlers am 30. Januar 1933.">
+<title>Der 30. Januar · Geschichte im Gespräch</title>
+<link rel="stylesheet" href="./style.css">
+<script type="module" src="./app.mjs"></script>
+</head>
+<body>
+<a class="skip" href="#question">Zur Eingabe</a>
+<header class="mast"><span>GESCHICHTE IM GESPRÄCH</span><span>WEIMARER REPUBLIK &nbsp; / &nbsp; 1933</span></header>
+<main>
+<section class="intro">
+<p class="eyebrow">BERLIN &nbsp;·&nbsp; 30. JANUAR 1933</p>
+<h1>Eine verhängnisvolle<br class="wide"> Entscheidung?</h1>
+<p>Warum ernannte Hindenburg Hitler zum Reichskanzler? Befrage ihn, widersprich seiner Begründung und prüfe, welche Warnzeichen damals schon sichtbar waren.</p>
+</section>
+<div class="layout">
+<section class="chat" aria-labelledby="chat-title">
+<header class="chat-head"><span class="seal" aria-hidden="true">H</span><div><h2 id="chat-title">Paul von Hindenburg</h2><p>Historische Simulation · Rollenrede, keine Originalzitate</p></div></header>
+<div id="log" class="log" role="log" aria-label="Gesprächsverlauf" tabindex="0"></div>
+<div class="compose">
+<div id="prompts" class="prompts" aria-label="Gesprächsimpulse"></div>
+<form id="form">
+<label for="question">Deine Frage oder dein Einwand</label>
+<textarea id="question" rows="2" maxlength="1200" placeholder="Herr von Hindenburg, warum …" required></textarea>
+<div class="actions"><button type="button" id="mic" aria-pressed="false"><svg aria-hidden="true" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3m-4 0h8"/></svg><span>Mikrofon</span></button><button type="submit" class="primary" id="send">Senden <span aria-hidden="true">↗</span></button></div>
+<p class="hint" id="speech-status" role="status">Sprich deinen Beitrag ein. Prüfe danach den Text und sende ihn ab.</p>
+<details class="privacy"><summary>Hinweis zur Spracheingabe</summary><p>Je nach Browser kann deine Aufnahme zur Erkennung an den Browseranbieter übertragen werden. Die Website selbst speichert weder Audio noch Gesprächsdaten. Du kannst jederzeit tippen.</p></details>
+</form></div>
+</section>
+<aside aria-label="Material zur Diskussion">
+<section class="dossier"><p class="eyebrow">01 &nbsp;/&nbsp; AKTENMAPPE</p><h2>Was geschah?</h2>
+<details open><summary>30. Januar · Ernennung</summary><p>Hindenburg ernennt Hitler. Papen wird Vizekanzler. Konservative Politiker rechnen damit, Hitler im Kabinett kontrollieren zu können. <a href="#quelle-1">[1]</a> <a href="#quelle-2">[2]</a></p></details>
+<details><summary>28. Februar · Grundrechte</summary><p>Hindenburg unterzeichnet die Reichstagsbrandverordnung. Sie setzt zentrale Grundrechte ausser Kraft und erleichtert die Verfolgung politischer Gegner. <a href="#quelle-2">[2]</a></p></details>
+<details><summary>23. März · Ermächtigungsgesetz</summary><p>Unter Verfolgung und Einschüchterung beschliesst der Reichstag ein Gesetz, das der Regierung Gesetzgebung ohne parlamentarische Zustimmung ermöglicht. <a href="#quelle-3">[3]</a></p></details>
+</section>
+<section class="dossier assignment"><p class="eyebrow">02 &nbsp;/&nbsp; DEIN AUFTRAG</p><h2>Prüfe die Entscheidung</h2><ol><li>Frage nach einem Grund für die Ernennung.</li><li>Halte ein Warnzeichen dagegen, das man schon im Januar 1933 kennen konnte.</li><li>Unterscheide damalige Handlungsmöglichkeiten von späteren Folgen.</li></ol><a href="#urteil">Zum eigenen Urteil ↓</a></section>
+</aside>
+</div>
+<section class="dossier reflection" id="urteil"><p class="eyebrow">03 &nbsp;/&nbsp; AUSWERTUNG</p><h2>Dein historisches Urteil</h2>
+<label for="verdict">Was machte die Entscheidung verhängnisvoll? Nenne einen damaligen Beweggrund, ein erkennbares Risiko und eine belegte Folge.</label>
+<textarea id="verdict" rows="4" maxlength="4000" placeholder="Aus damaliger Sicht … Im Rückblick …"></textarea>
+<div class="actions"><button type="button" id="reset">Gespräch neu starten</button><button type="button" class="primary" id="export">Gespräch und Urteil herunterladen</button></div>
+</section>
+<section class="sources" aria-labelledby="sources-title"><h2 id="sources-title">Quellen zum Nachlesen</h2>
+<ol><li id="quelle-1"><a href="https://weimar.bundesarchiv.de/WEIMAR/DE/Content/Dokumente-zur-Zeitgeschichte/1933-01-30_hitler.html">Bundesarchiv: Ernennung Adolf Hitlers zum Reichskanzler</a></li>
+<li id="quelle-2"><a href="https://encyclopedia.ushmm.org/content/en/article/the-nazi-rise-to-power">US Holocaust Memorial Museum: Aufstieg der NSDAP und Errichtung der Diktatur (Englisch)</a></li>
+<li id="quelle-3"><a href="https://encyclopedia.ushmm.org/content/en/article/the-enabling-act">US Holocaust Memorial Museum: Das Ermächtigungsgesetz (Englisch)</a></li></ol>
+<p>Die Rollenrede ist didaktisch formuliert. Der historische Kommentar trennt belegte Ereignisse und Deutungen von der Simulation.</p></section>
+</main><footer>GESCHICHTE IM GESPRÄCH <span>Eine Lernumgebung zur Weimarer Republik</span></footer>
+</body></html>
