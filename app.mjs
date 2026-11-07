@@ -1,4 +1,4 @@
-import {opening,generateReply} from './dialogue.mjs?v=quellen-1934';
+import {opening,generateReply} from './dialogue.mjs?v=profil-1934';
 const $ = id => document.getElementById(id);
 const question = $('question'), log = $('log'), mic = $('mic'), status = $('speech-status');
 const send = $('send'), micLabel = mic.querySelector('span');
