@@ -1,4 +1,4 @@
-import {opening,generateReply} from './dialogue.mjs?v=buchstellen';
+import {opening,generateReply} from './dialogue.mjs?v=buchbezug';
 const $ = id => document.getElementById(id);
 const question = $('question'), log = $('log'), mic = $('mic'), status = $('speech-status');
 const send = $('send'), micLabel = mic.querySelector('span');
@@ -27,7 +27,7 @@ function append(data) {
     link.href = data.memoir.url;
     link.target = '_blank';
     link.rel = 'noopener noreferrer';
-    citation.append(link);
+    citation.append(link,node('p',data.memoir.summary));
     article.append(citation);
   }
   if (data.note) {
