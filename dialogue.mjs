@@ -40,7 +40,17 @@ const memoirURL = 'https://www.gutenberg.org/cache/epub/30695/pg30695-images.htm
 const passages = [
   {anchor:'p394', label:'Der Schritt zum Waffenstillstand, S. 393–394',
     pattern:/waffenstillstand|dolchsto[ßs]+|kriegsniederlage|niederlage.{0,22}1918|kriegsende|1918.{0,25}niederlage/iu,
+    excerpt:'unterbreiten wir Seiner Majestät dem Kaiser unseren Vorschlag zum Friedensschritt',
     summary:'Hindenburg schildert, wie er und Ludendorff Ende September 1918 auf einen Friedensschritt drängten und er dem Kaiser dazu den Ernst der militärischen Lage darlegte. Das steht in Spannung zu seiner späteren öffentlichen Dolchstossbehauptung.'},
+  {anchor:'p395', label:'Abnehmende Kampfkraft und Rückzug, S. 395',
+    pattern:/waffenstillstand|kriegsende|niederlage.{0,22}1918|1918.{0,25}niederlage/iu,
+    excerpt:'Das Nachlassen der Spannkraft der Truppe, das Schwinden der Kämpferzahlen',
+    summary:'Hindenburg nennt sinkende Truppenstärke und gegnerische Einbrüche als Gründe für das weitere Zurückweichen an der Westfront.'},
+  {anchor:'ausschuss-1919', label:'Erklärung vor dem Untersuchungsausschuss, 18. November 1919',
+    url:'https://germanhistorydocs.ghi-dc.org/pdf/deu/WR_HINDENBURG_DEU.pdf#page=2',
+    pattern:/waffenstillstand|dolchsto[ßs]+|schuld.{0,30}(heimat|niederlage)|heimat.{0,30}schuld|kriegsniederlage/iu,
+    excerpt:'Den guten Kern des Heeres trifft keine Schuld.',
+    summary:'Vor dem Ausschuss schob Hindenburg die Verantwortung für den Zusammenbruch auf Kräfte im Inneren. Diese Erklärung dokumentiert die Verbreitung der widerlegten Dolchstosslegende.'},
   {anchor:'p041', label:'Kaiserproklamation in Versailles, S. 41–42',
     pattern:/kaiserproklamation|monarch|versailles.{0,18}1871|kaiserreich|reichsgründung/iu,
     summary:'Hindenburg erinnert sich, dass er als Regimentsvertreter zur Kaiserproklamation im Januar 1871 nach Versailles entsandt wurde. Das war ein persönliches Erlebnis aus seiner Offizierszeit, keine Erklärung für eine Entscheidung von 1933.'},
@@ -55,27 +65,40 @@ const passages = [
     summary:'Im Vorwort stellt Hindenburg Überzeugung, Pflicht und Gewissen als Massstäbe seines Handelns heraus. Er beschreibt den Text als persönliche Erinnerung. Diese Selbstdarstellung kann der Besucher mit den Folgen seiner Entscheidungen vergleichen.'}
 ];
 
-export function memoirPassage(input, transcript = []) {
-  const direct = passages.find(passage => passage.pattern.test(input));
-  if (direct) return direct;
-  if (input.length <= 100 && /^(und\b|aber\b|inwiefern\b|warum[?.! ]*$|weshalb[?.! ]*$|was (meinen Sie|heisst das))/iu.test(input.trim())) {
-    const lastSource = transcript.at(-1)?.memoir;
-    return passages.find(passage => passage.anchor === lastSource?.anchor);
-  }
+export function selectSources(input, transcript = []) {
+  const direct = passages.filter(passage => passage.pattern.test(input));
+  const followUp = /^(und\b|aber\b|inwiefern\b|warum[?.! ]*$|weshalb[?.! ]*$|was (meinen Sie|heisst das))/iu.test(input.trim());
+  const prior = followUp ? transcript.at(-1)?.sources ?? [] : [];
+  const selected = [...direct, ...prior.filter(source => !direct.some(passage => passage.anchor === source.anchor))];
+  return selected.slice(0, 3).map(passage => ({
+    ...passage,
+    label: passage.label.startsWith('Aus meinem Leben – ') || passage.url ? passage.label : 'Aus meinem Leben – ' + passage.label,
+    url: passage.url || memoirURL + '#' + passage.anchor
+  }));
 }
 
-export function messagesFor(input, transcript, passage = memoirPassage(input, transcript)) {
+export function historicalContext(sources) {
+  const ids = new Set(sources.map(source => source.anchor));
+  if (ids.has('p394') && ids.has('ausschuss-1919')) {
+    return 'Die Memoiren schildern rückblickend, wie die Oberste Heeresleitung Ende September 1918 wegen der militärischen Lage beim Kaiser auf einen Friedensschritt drängte. Der Waffenstillstand wurde erst am 11. November unterzeichnet. Vor dem Ausschuss 1919 verschob Hindenburg die Verantwortung auf die Heimat. Seine Aussage belegt, dass er die widerlegte Dolchstosslegende öffentlich verbreitete.';
+  }
+  return sources.map(source => source.summary).join(' ');
+}
+
+export function messagesFor(input, transcript, sources = selectSources(input, transcript)) {
   const appointment = /ernenn|ernannt|kanzler|papen|hitler.{0,25}(erfahrung|fähigkeit)/iu.test(input)
     ? '\nFür Fragen zur Ernennung: Benennen Sie Papens Vermittlung und die Hoffnung auf Kontrolle durch konservative Minister. Papen wurde Vizekanzler unter Hitler. Schleicher war Hitlers Vorgänger und gehörte Hitlers Kabinett nicht an. Schreiben Sie Hindenburg keine unbelegte Bewunderung für Hitlers Fähigkeiten oder Regierungserfahrung zu. Unterscheiden Sie damalige Erwartungen von den Folgen bis August 1934.'
     : '';
-  const evidence = passage ? '\n\nPassende Buchstelle aus Aus meinem Leben, ' + passage.label + ': ' + passage.summary
-    + '\nBeginnen Sie mit einem konkreten Detail aus dieser Passage und nennen Sie dabei Ihre Erinnerungen. Erklären Sie anschliessend, was dieses Detail mit dem Einwand zu tun hat. Schreiben Sie keine URL.' : '';
+  const evidence = sources.length ? '\n\nAusgewählte Originalstellen und ihre Einordnung:\n' +
+    sources.map(source => source.label + ': ' + source.summary +
+      (source.excerpt ? ' Originalwortlaut: «' + source.excerpt + '».' : '')).join('\n') +
+    '\nVerknüpfen Sie die einschlägigen Stellen mit dem Einwand. Unterscheiden Sie den Vorschlag Ende September 1918 vom Abschluss am 11. November. Wenn die Ausschusserklärung und die Memoiren relevant sind, gehen Sie konkret auf die Spannung zwischen beiden ein. Verwenden Sie Paraphrasen und keine Links.' : '';
   return [
     {role:'system', content: instructions + evidence + '\n\nIhre Eröffnung lautete: ' + opening.role},
     ...transcript.slice(1).map(turn => turn.user
       ? {role:'user', content:turn.user}
       : {role:'assistant', content:turn.role}),
-    {role:'user', content:input + (passage ? '\n\nBitte beziehen Sie sich konkret auf die folgende Stelle in Ihren Erinnerungen (' + passage.label + '): ' + passage.summary : '') + appointment + '\n\nAntworten Sie auf den Einwand in drei bis fünf kurzen, verständlichen Sätzen. Bleiben Sie beim konkreten historischen Zusammenhang.'}
+    {role:'user', content:input + appointment + '\n\nAntworten Sie auf den Einwand in drei bis fünf kurzen, verständlichen Sätzen. Bleiben Sie beim konkreten historischen Zusammenhang.'}
   ];
 }
 
@@ -110,8 +133,8 @@ export async function generateReply(input, transcript, progress) {
   }
   const engine = await enginePromise;
   progress(100);
-  const passage = memoirPassage(input, transcript);
-  const messages = messagesFor(input, transcript, passage);
+  const sources = selectSources(input, transcript);
+  const messages = messagesFor(input, transcript, sources);
   const invalidAddress = /\b(?:du|dich|dir|dein(?:e|en|em|er|es)?)\b|(?:^|[,!?.]\s*)Herr\s+[A-ZÄÖÜ][\p{L}-]*[,!]/imu;
   const knownBadWording = /\bGroßart\b|\bGrossart\b|\b(?:Demokratie|Republik)\b[^.!?]{0,28}\babfuhr\b|Hitler[^.!?]{0,75}(?:Regierungserfahrung|Fähigkeiten und die Erfahrung)/iu;
   for (const temperature of [0.25, 0.1]) {
@@ -121,9 +144,7 @@ export async function generateReply(input, transcript, progress) {
     const raw = response.choices[0]?.message.content?.trim() || '';
     const role = raw.replace(/\[BUCH\]/gi, '').trim().replace(/^Sie,\s+([a-zäöü])/u, (_, letter) => letter.toUpperCase());
     if (role && !invalidAddress.test(role) && !knownBadWording.test(role) && !/Minister wie Papen und Schleicher|Papen und Schleicher die Kontrolle/iu.test(role)) {
-      return passage
-        ? {role, memoir:{anchor:passage.anchor, label:passage.label, summary:passage.summary, url:memoirURL + '#' + passage.anchor}}
-        : {role};
+      return {role, sources, historicalContext: historicalContext(sources)};
     }
     messages.at(-1).content += '\nFormulieren Sie die Antwort neu: drei klare Sätze, ohne ungebräuchliche Ausdrücke. Sprechen Sie den namenlosen Besucher mit Sie an. Begründen Sie die Ernennung mit dem Kabinettsplan, sofern danach gefragt wurde. Schleicher war Hitlers Vorgänger und kein Mitglied von Hitlers Regierung.';
   }
