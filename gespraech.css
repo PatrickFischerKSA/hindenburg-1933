@@ -207,16 +207,19 @@ li:target { background: #504335; }
   margin-top: -2.6rem;
 }
 .encounter .message:not(.user) {
-  border-left-color: #dfbe8680;
+  border-image: linear-gradient(transparent, #dfbe8660 28%, #dfbe8640 70%, transparent) 1;
   text-shadow: 0 1px 8px #17130c;
 }
 .encounter .compose {
-  background: linear-gradient(125deg, #3d3226e6, #2c261ed1 68%, #28231be6);
-  border: 1px solid #dfbe8626;
-  border-radius: 1.65rem 1.15rem 1.85rem 1.3rem;
-  box-shadow: 0 .75rem 2.8rem #16130f55;
+  background: radial-gradient(ellipse at 44% 38%, #3d322696, #322a2155 52%, transparent 78%);
 }
-.encounter .compose textarea { background: #181612b8; }
+.encounter .compose textarea {
+  background: #181612a6;
+  border-color: #dfbe8640;
+}
+.encounter .compose textarea:focus {
+  border-color: var(--warm);
+}
 @media (max-width: 620px) {
   .encounter > .office-photo, .encounter::before { height: min(100%, 28rem); }
   .encounter > .office-photo { object-position: 62% 53%; }
