@@ -66,7 +66,7 @@ export function memoirPassage(input, transcript = []) {
 
 export function messagesFor(input, transcript, passage = memoirPassage(input, transcript)) {
   const appointment = /ernenn|ernannt|kanzler|papen|hitler.{0,25}(erfahrung|fähigkeit)/iu.test(input)
-    ? '\nFür Fragen zur Ernennung: Benennen Sie Papens Vermittlung und die Hoffnung auf Kontrolle durch konservative Minister. Schreiben Sie Hindenburg keine unbelegte Bewunderung für Hitlers Fähigkeiten oder Regierungserfahrung zu. Unterscheiden Sie damalige Erwartungen von den Folgen bis August 1934.'
+    ? '\nFür Fragen zur Ernennung: Benennen Sie Papens Vermittlung und die Hoffnung auf Kontrolle durch konservative Minister. Papen wurde Vizekanzler unter Hitler. Schleicher war Hitlers Vorgänger und gehörte Hitlers Kabinett nicht an. Schreiben Sie Hindenburg keine unbelegte Bewunderung für Hitlers Fähigkeiten oder Regierungserfahrung zu. Unterscheiden Sie damalige Erwartungen von den Folgen bis August 1934.'
     : '';
   const evidence = passage ? '\n\nPassende Buchstelle aus Aus meinem Leben, ' + passage.label + ': ' + passage.summary
     + '\nBeginnen Sie mit einem konkreten Detail aus dieser Passage und nennen Sie dabei Ihre Erinnerungen. Erklären Sie anschliessend, was dieses Detail mit dem Einwand zu tun hat. Schreiben Sie keine URL.' : '';
@@ -119,13 +119,13 @@ export async function generateReply(input, transcript, progress) {
       messages, temperature, max_tokens:220
     });
     const raw = response.choices[0]?.message.content?.trim() || '';
-    const role = raw.replace(/\[BUCH\]/gi, '').trim();
-    if (role && !invalidAddress.test(role) && !knownBadWording.test(role)) {
+    const role = raw.replace(/\[BUCH\]/gi, '').trim().replace(/^Sie,\s+([a-zäöü])/u, (_, letter) => letter.toUpperCase());
+    if (role && !invalidAddress.test(role) && !knownBadWording.test(role) && !/Minister wie Papen und Schleicher|Papen und Schleicher die Kontrolle/iu.test(role)) {
       return passage
         ? {role, memoir:{anchor:passage.anchor, label:passage.label, summary:passage.summary, url:memoirURL + '#' + passage.anchor}}
         : {role};
     }
-    messages.at(-1).content += '\nFormulieren Sie die Antwort neu: drei klare Sätze, ohne ungebräuchliche Ausdrücke. Sprechen Sie den namenlosen Besucher mit Sie an. Begründen Sie die Ernennung mit dem Kabinettsplan, sofern danach gefragt wurde.';
+    messages.at(-1).content += '\nFormulieren Sie die Antwort neu: drei klare Sätze, ohne ungebräuchliche Ausdrücke. Sprechen Sie den namenlosen Besucher mit Sie an. Begründen Sie die Ernennung mit dem Kabinettsplan, sofern danach gefragt wurde. Schleicher war Hitlers Vorgänger und kein Mitglied von Hitlers Regierung.';
   }
   throw new Error('Das Modell hat keine passende Antwort erzeugt.');
 }
