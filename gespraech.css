@@ -149,3 +149,26 @@ li:target { background: #504335; }
   }
   .office-photo { object-position: 63% 56%; }
 }
+
+/* A short first view leaves room for the opening reply and its composer. */
+.scene {
+  min-height: clamp(12rem, 34svh, 20rem);
+  padding: clamp(1rem, 3.5vh, 2.5rem) clamp(1rem, 6vw, 6rem) 3.5rem;
+}
+.scene h1 { font-size: clamp(2.3rem, 5.5vw, 4.5rem); }
+.scene .fiction { margin-top: .55rem; max-width: 19rem; }
+.chat { margin-top: -2.35rem; }
+.message { margin-bottom: .4rem; padding-block: .45rem; }
+.message:not(.user) > p { font-size: clamp(1rem, 1.7vw, 1.25rem); line-height: 1.4; }
+.compose { padding: .65rem .9rem; }
+@media (max-width: 620px) {
+  .scene { min-height: clamp(10rem, 29svh, 13rem); padding-bottom: 2.25rem; }
+  .scene h1 { max-width: 52%; font-size: clamp(1.85rem, 7vw, 2.6rem); }
+  .scene .fiction { max-width: 54%; font-size: .68rem; }
+  .scene::after {
+    background: linear-gradient(0deg, #211e19, transparent 35%),
+                linear-gradient(90deg, #211e19eb, #211e1977 56%, transparent 80%);
+  }
+  .office-photo { object-position: 61% 53%; }
+  .chat { margin-top: -1.5rem; }
+}
