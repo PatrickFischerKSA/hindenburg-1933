@@ -66,13 +66,13 @@ export function memoirPassage(input, transcript = []) {
 
 export function messagesFor(input, transcript, passage = memoirPassage(input, transcript)) {
   const evidence = passage ? '\n\nPassende Buchstelle aus Aus meinem Leben, ' + passage.label + ': ' + passage.summary
-    + '\nWenn diese Stelle den Einwand erhellt, beziehen Sie sich ausdrücklich auf Ihr Buch oder Ihre Erinnerungen und erklären Sie den konkreten Zusammenhang. Setzen Sie [BUCH] ans Ende, wenn Sie die Stelle verwendet haben. Bei fehlendem Zusammenhang lassen Sie den Bezug und die Markierung weg. Schreiben Sie keine URL.' : '';
+    + '\nBeginnen Sie mit einem konkreten Detail aus dieser Passage und nennen Sie dabei Ihre Erinnerungen. Erklären Sie anschliessend, was dieses Detail mit dem Einwand zu tun hat. Schreiben Sie keine URL.' : '';
   return [
     {role:'system', content: instructions + evidence + '\n\nIhre Eröffnung lautete: ' + opening.role},
     ...transcript.slice(1).map(turn => turn.user
       ? {role:'user', content:turn.user}
       : {role:'assistant', content:turn.role}),
-    {role:'user', content:input}
+    {role:'user', content:passage ? input + '\n\nBitte beziehen Sie sich konkret auf die folgende Stelle in Ihren Erinnerungen (' + passage.label + '): ' + passage.summary : input}
   ];
 }
 
@@ -117,9 +117,8 @@ export async function generateReply(input, transcript, progress) {
     const raw = response.choices[0]?.message.content?.trim() || '';
     const role = raw.replace(/\[BUCH\]/gi, '').trim();
     if (role && !invalidAddress.test(role)) {
-      const usedPassage = passage && (/\[BUCH\]/i.test(raw) || /(?:meine[nr]? Erinnerungen|meinem Buch|Aus meinem Leben)/iu.test(role));
-      return usedPassage
-        ? {role, memoir:{anchor:passage.anchor, label:passage.label, url:memoirURL + '#' + passage.anchor}}
+      return passage
+        ? {role, memoir:{anchor:passage.anchor, label:passage.label, summary:passage.summary, url:memoirURL + '#' + passage.anchor}}
         : {role};
     }
     messages[0].content += '\nWichtig: Der Besucher ist namenlos. Verwenden Sie nur die Anrede Sie und identifizieren Sie den Besucher nicht mit einer historischen Person.';
