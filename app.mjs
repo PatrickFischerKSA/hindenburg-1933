@@ -128,19 +128,19 @@ mic.addEventListener('click',() => {
   active = session;
   session.lang = 'de-CH';
   session.interimResults = true;
-  session.continuous = false;
+  session.continuous = true;
   const base = question.value.trimEnd();
-  let finalText = '', error = '';
+  let finalText = '', preview = '', error = '';
   session.onstart = () => {
-    if (active === session) setState('listening','Ich höre zu. Sprechen Sie jetzt.');
+    if (active === session) setState('listening','Ich höre zu. Wählen Sie «Aufnahme stoppen», wenn Sie fertig sind.');
   };
   session.onresult = event => {
     if (active !== session) return;
-    let preview = '';
+    preview = '';
     finalText = '';
     for (const result of Array.from(event.results)) {
-      if (result.isFinal) finalText += result[0].transcript;
-      else preview += result[0].transcript;
+      if (result.isFinal) finalText += ' ' + result[0].transcript.trim();
+      else preview += ' ' + result[0].transcript.trim();
     }
     question.value = [base,(finalText + ' ' + preview).trim()].filter(Boolean).join(' ').slice(0,1200);
   };
@@ -159,8 +159,9 @@ mic.addEventListener('click',() => {
   session.onend = () => {
     if (active !== session) return;
     active = undefined;
-    question.value = [base,finalText.trim()].filter(Boolean).join(' ').slice(0,1200);
-    setState('idle',error || (finalText ? 'Text erkannt. Prüfen und bearbeiten Sie ihn vor dem Senden.' : 'Keine Sprache erkannt. Versuchen Sie es erneut oder tippen Sie Ihren Beitrag.'));
+    const spokenText = (finalText + preview).trim();
+    question.value = [base,spokenText].filter(Boolean).join(' ').slice(0,1200);
+    setState('idle',error || (spokenText ? 'Text erkannt. Prüfen und bearbeiten Sie ihn vor dem Senden.' : 'Keine Sprache erkannt. Versuchen Sie es erneut oder tippen Sie Ihren Beitrag.'));
   };
   setState('starting','Der Browser fragt gegebenenfalls nach der Mikrofonfreigabe.');
   try { session.start(); } catch { active = undefined; setState('idle','Spracheingabe konnte nicht starten. Sie können Ihren Beitrag tippen.'); }
