@@ -1,4 +1,4 @@
-import {opening,generateReply} from './dialogue.mjs?v=buchbezug';
+import {opening,generateReply} from './dialogue.mjs?v=klare-antworten';
 const $ = id => document.getElementById(id);
 const question = $('question'), log = $('log'), mic = $('mic'), status = $('speech-status');
 const send = $('send'), micLabel = mic.querySelector('span');
@@ -94,7 +94,9 @@ $('form').addEventListener('submit',async event => {
   } catch (error) {
     console.error(error);
     if (/WebGPU/.test(error.message) && !navigator.gpu) message = error.message;
-    else if (/context window|context length|ContextWindow|exceed.*context/i.test(error.message)) {
+    else if (error.message === 'Das Modell hat keine passende Antwort erzeugt.') {
+      message = 'Das Modell hat keine passende Antwort gefunden. Sie können Ihren Beitrag erneut senden oder die Frage anders formulieren.';
+    } else if (/context window|context length|ContextWindow|exceed.*context/i.test(error.message)) {
       message = 'Der Gesprächsverlauf ist für das Modell zu lang. Sie können das Protokoll herunterladen und ein neues Gespräch beginnen.';
     } else {
       message = 'Die Antwort konnte nicht erzeugt werden. Prüfen Sie die Verbindung und die WebGPU-Unterstützung Ihres Geräts. Ihr Beitrag bleibt im Eingabefeld.';
