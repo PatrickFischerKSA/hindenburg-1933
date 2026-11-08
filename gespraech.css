@@ -172,3 +172,58 @@ li:target { background: #504335; }
   .office-photo { object-position: 61% 53%; }
   .chat { margin-top: -1.5rem; }
 }
+
+/* Bild und Gespräch teilen sich eine Bühne. Das Foto läuft hinter dem Dialog aus. */
+.encounter {
+  position: relative;
+  isolation: isolate;
+}
+.encounter > .office-photo,
+.encounter::before {
+  position: absolute;
+  inset: 0 0 auto;
+  width: 100%;
+  height: min(100%, clamp(28rem, 76svh, 48rem));
+  pointer-events: none;
+}
+.encounter > .office-photo {
+  z-index: -2;
+  object-position: 62% 78%;
+  mask-image: linear-gradient(to bottom, #000 42%, #000b 66%, transparent 100%);
+}
+.encounter::before {
+  content: "";
+  z-index: -1;
+  background:
+    radial-gradient(ellipse at 18% 29%, #211e19bd, transparent 68%),
+    linear-gradient(to bottom, transparent 24%, #211e1966 52%, #211e19b3 76%, #211e19);
+}
+.encounter .scene {
+  overflow: visible;
+  padding-bottom: 2.5rem;
+}
+.encounter .scene::after { content: none; }
+.encounter .chat {
+  margin-top: -2.6rem;
+}
+.encounter .message:not(.user) {
+  border-left-color: #dfbe8680;
+  text-shadow: 0 1px 8px #17130c;
+}
+.encounter .compose {
+  background: linear-gradient(125deg, #3d3226e6, #2c261ed1 68%, #28231be6);
+  border: 1px solid #dfbe8626;
+  border-radius: 1.65rem 1.15rem 1.85rem 1.3rem;
+  box-shadow: 0 .75rem 2.8rem #16130f55;
+}
+.encounter .compose textarea { background: #181612b8; }
+@media (max-width: 620px) {
+  .encounter > .office-photo, .encounter::before { height: min(100%, 28rem); }
+  .encounter > .office-photo { object-position: 62% 53%; }
+  .encounter::before {
+    background:
+      linear-gradient(90deg, #211e19eb, #211e1977 56%, transparent 86%),
+      linear-gradient(to bottom, transparent 17%, #211e1977 40%, #211e19 100%);
+  }
+  .encounter .chat { margin-top: -1.55rem; }
+}
