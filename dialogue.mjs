@@ -36,9 +36,39 @@ Historisches Dossier. Verwenden Sie daraus nur die Belege, die zum konkreten Ein
 
 Wissensgrenze: Die Szene endet am 1. August 1934. Nehmen Sie Ereignisse nach diesem Datum nicht vorweg. Wenn der Besucher ein späteres Ereignis nennt, gehen Sie auf den Einwand aus damaliger Sicht ein, ohne das spätere Ereignis zu bestätigen.`;
 
-export function messagesFor(input, transcript) {
+const memoirURL = 'https://www.gutenberg.org/cache/epub/30695/pg30695-images.html';
+const passages = [
+  {anchor:'p394', label:'Der Schritt zum Waffenstillstand, S. 393–394',
+    pattern:/waffenstillstand|dolchsto[ßs]+|kriegsniederlage|niederlage.{0,22}1918|kriegsende|1918.{0,25}niederlage/iu,
+    summary:'Hindenburg schildert, wie er und Ludendorff Ende September 1918 auf einen Friedensschritt drängten und er dem Kaiser dazu den Ernst der militärischen Lage darlegte. Das steht in Spannung zu seiner späteren öffentlichen Dolchstossbehauptung.'},
+  {anchor:'p041', label:'Kaiserproklamation in Versailles, S. 41–42',
+    pattern:/kaiserproklamation|monarch|versailles.{0,18}1871|kaiserreich|reichsgründung/iu,
+    summary:'Hindenburg erinnert sich, dass er als Regimentsvertreter zur Kaiserproklamation im Januar 1871 nach Versailles entsandt wurde. Das war ein persönliches Erlebnis aus seiner Offizierszeit, keine Erklärung für eine Entscheidung von 1933.'},
+  {anchor:'p085', label:'Tannenberg, S. 85',
+    pattern:/tannenberg|samsonow|samsonoff|rennenkampf/iu,
+    summary:'Hindenburg verbindet den Ort mit der Erinnerung an den Deutschen Orden. Auf dem Weg dorthin sieht er Flüchtende und beschreibt ihr Elend, zugleich betrachtet er ihre Bewegung aus der Perspektive der militärischen Operation.'},
+  {anchor:'p393', label:'Parlamentarische Regierung in der Krise, S. 393',
+    pattern:/verfassungseid|parlament|weimar|reichstag|parteien/iu,
+    summary:'Für den 29. September 1918 schildert Hindenburg den Vorschlag, der drohenden Revolution mit parlamentarischer Regierung zu begegnen. Er stellt diesen Vorschlag in Frage und befürchtet verschärfte politische Konflikte. Das ist seine Rückschau auf 1918, keine Aussage über den Verfassungseid von 1925.'},
+  {anchor:'pV', label:'Vorwort vom September 1919, S. V',
+    pattern:/pflicht|gewissen|überzeugung|erinnerungen|aus meinem leben|memoiren/iu,
+    summary:'Im Vorwort stellt Hindenburg Überzeugung, Pflicht und Gewissen als Massstäbe seines Handelns heraus. Er beschreibt den Text als persönliche Erinnerung. Diese Selbstdarstellung kann der Besucher mit den Folgen seiner Entscheidungen vergleichen.'}
+];
+
+export function memoirPassage(input, transcript = []) {
+  const direct = passages.find(passage => passage.pattern.test(input));
+  if (direct) return direct;
+  if (input.length <= 100 && /^(und\b|aber\b|inwiefern\b|warum[?.! ]*$|weshalb[?.! ]*$|was (meinen Sie|heisst das))/iu.test(input.trim())) {
+    const lastSource = transcript.at(-1)?.memoir;
+    return passages.find(passage => passage.anchor === lastSource?.anchor);
+  }
+}
+
+export function messagesFor(input, transcript, passage = memoirPassage(input, transcript)) {
+  const evidence = passage ? '\n\nPassende Buchstelle aus Aus meinem Leben, ' + passage.label + ': ' + passage.summary
+    + '\nWenn diese Stelle den Einwand erhellt, beziehen Sie sich ausdrücklich auf Ihr Buch oder Ihre Erinnerungen und erklären Sie den konkreten Zusammenhang. Setzen Sie [BUCH] ans Ende, wenn Sie die Stelle verwendet haben. Bei fehlendem Zusammenhang lassen Sie den Bezug und die Markierung weg. Schreiben Sie keine URL.' : '';
   return [
-    {role:'system', content: instructions + '\n\nIhre Eröffnung lautete: ' + opening.role},
+    {role:'system', content: instructions + evidence + '\n\nIhre Eröffnung lautete: ' + opening.role},
     ...transcript.slice(1).map(turn => turn.user
       ? {role:'user', content:turn.user}
       : {role:'assistant', content:turn.role}),
@@ -77,14 +107,21 @@ export async function generateReply(input, transcript, progress) {
   }
   const engine = await enginePromise;
   progress(100);
-  const messages = messagesFor(input, transcript);
+  const passage = memoirPassage(input, transcript);
+  const messages = messagesFor(input, transcript, passage);
   const invalidAddress = /\b(?:du|dich|dir|dein(?:e|en|em|er|es)?)\b|(?:^|[,!?.]\s*)Herr\s+[A-ZÄÖÜ][\p{L}-]*[,!]/imu;
   for (const temperature of [0.4, 0.2]) {
     const response = await engine.chat.completions.create({
       messages, temperature, max_tokens:320
     });
-    const role = response.choices[0]?.message.content?.trim();
-    if (role && !invalidAddress.test(role)) return {role};
+    const raw = response.choices[0]?.message.content?.trim() || '';
+    const role = raw.replace(/\[BUCH\]/gi, '').trim();
+    if (role && !invalidAddress.test(role)) {
+      const usedPassage = passage && (/\[BUCH\]/i.test(raw) || /(?:meine[nr]? Erinnerungen|meinem Buch|Aus meinem Leben)/iu.test(role));
+      return usedPassage
+        ? {role, memoir:{anchor:passage.anchor, label:passage.label, url:memoirURL + '#' + passage.anchor}}
+        : {role};
+    }
     messages[0].content += '\nWichtig: Der Besucher ist namenlos. Verwenden Sie nur die Anrede Sie und identifizieren Sie den Besucher nicht mit einer historischen Person.';
   }
   throw new Error('Das Modell hat keine passende Antwort erzeugt.');
