@@ -129,40 +129,23 @@ li:target { background: #504335; }
   .chat { margin-top: -4.6rem; }
 }
 
-/* Das Porträt benennt den Gesprächspartner, die Postkarte verortet die Szene. */
-.scene {
-  grid-template-columns: minmax(0, 30rem) minmax(10rem, 18rem);
-  justify-content: space-between;
-  gap: 1.4rem;
-}
-.host {
-  align-self: center;
-  justify-self: end;
-  margin: 0;
-  text-align: center;
-}
-.host img {
-  display: block;
-  width: clamp(9rem, 19vw, 16rem);
-  height: auto;
-  aspect-ratio: 4 / 5;
-  object-fit: cover;
-  object-position: center 13%;
-  border-radius: 46% 46% 12% 12%;
-  box-shadow: 0 0 2.5rem #191610bb;
-}
-.host figcaption { margin-top: .5rem; color: var(--ink); font-size: .75rem; text-shadow: 0 1px 4px #17130c; }
 .estate { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 1.15rem; align-items: start; }
 .estate figure { margin: .5rem 0 0; }
 .estate img { display: block; width: 100%; height: auto; border-radius: .35rem; }
 .estate figcaption { margin-top: .35rem; }
 .estate p { margin: .45rem 0 .7rem; }
 @media (max-width: 620px) {
-  .scene { grid-template-columns: minmax(0, 1fr) minmax(5.2rem, 26%); gap: .65rem; }
   .scene h1 { font-size: clamp(1.85rem, 6.2vw, 2.65rem); }
   .scene .stage { font-size: .88rem; }
-  .host { align-self: start; margin-top: .6rem; }
-  .host img { width: 100%; }
-  .host figcaption { font-size: .64rem; }
   .estate { grid-template-columns: 1fr; gap: .5rem; }
+}
+
+/* Den Schreibtisch und Hindenburg auch auf schmalen Bildschirmen im Ausschnitt halten. */
+.office-photo { object-position: 62% 54%; }
+@media (max-width: 620px) {
+  .scene { padding-bottom: 11rem; }
+  .scene::after {
+    background: linear-gradient(0deg, #211e19 0%, transparent 34%, #211e19d9 75%, #211e19eb 100%);
+  }
+  .office-photo { object-position: 63% 56%; }
 }
