@@ -227,3 +227,15 @@ li:target { background: #504335; }
   }
   .encounter .chat { margin-top: -1.55rem; }
 }
+
+/* Keep the dialogue in the left foreground, clear of the seated figure. */
+@media (min-width: 621px) {
+  .encounter .chat {
+    width: min(47vw, 49rem);
+    margin-inline: clamp(1rem, 6vw, 6rem) auto;
+  }
+}
+@media (max-width: 620px) {
+  .encounter > .office-photo { object-position: 49% 53%; }
+  .encounter .chat { margin-top: 0; }
+}
