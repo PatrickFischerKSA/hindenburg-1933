@@ -1,4 +1,4 @@
-import {opening,generateReply} from './dialogue.mjs?v=klare-antworten-2';
+import {opening,generateReply} from './dialogue.mjs?v=originalstellen';
 const $ = id => document.getElementById(id);
 const question = $('question'), log = $('log'), mic = $('mic'), status = $('speech-status');
 const send = $('send'), micLabel = mic.querySelector('span');
@@ -21,13 +21,20 @@ function append(data) {
     article.append(node('div',data.user ? 'Sie' : 'Hindenburg','role'),
       node('p',data.user || data.role));
   }
-  if (data.memoir) {
+  if (data.sources?.length) {
     const citation = node('div','','context');
-    const link = node('a','Aus meinem Leben – ' + data.memoir.label);
-    link.href = data.memoir.url;
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-    citation.append(link,node('p',data.memoir.summary));
+    citation.append(node('strong','Originalstellen'));
+    const list = node('ul');
+    for (const source of data.sources) {
+      const item = node('li');
+      const link = node('a',source.label);
+      link.href = source.url;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      item.append(link);
+      list.append(item);
+    }
+    citation.append(list, node('strong','Historische Einordnung'), node('p',data.historicalContext));
     article.append(citation);
   }
   if (data.note) {
@@ -180,7 +187,8 @@ $('export').addEventListener('click',() => {
     ...transcript.map(item => item.user ? 'Sie: ' + item.user : [
       item.role && 'Hindenburg (simuliert): ' + item.role,
       item.note && 'Historischer Kommentar: ' + item.note,
-      item.memoir && 'Aus meinem Leben – ' + item.memoir.label + ': ' + item.memoir.url
+      item.historicalContext && 'Historische Einordnung: ' + item.historicalContext,
+      ...(item.sources ?? []).map(source => source.label + ': ' + source.url)
     ].filter(Boolean).join('\n')),
     'Meine Notiz:\n' + ($('verdict').value.trim() || '—'),
     'Quellen:\n' + [...document.querySelectorAll('#quellen li a')].map((a,i)=> `[${i+1}] ${a.href}`).join('\n')
