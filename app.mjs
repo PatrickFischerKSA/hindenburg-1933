@@ -1,4 +1,4 @@
-import {opening,generateReply} from './dialogue.mjs?v=erinnerungen';
+import {opening,generateReply} from './dialogue.mjs?v=buchstellen';
 const $ = id => document.getElementById(id);
 const question = $('question'), log = $('log'), mic = $('mic'), status = $('speech-status');
 const send = $('send'), micLabel = mic.querySelector('span');
@@ -20,6 +20,15 @@ function append(data) {
   if (data.user || data.role) {
     article.append(node('div',data.user ? 'Sie' : 'Hindenburg','role'),
       node('p',data.user || data.role));
+  }
+  if (data.memoir) {
+    const citation = node('div','','context');
+    const link = node('a','Aus meinem Leben – ' + data.memoir.label);
+    link.href = data.memoir.url;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    citation.append(link);
+    article.append(citation);
   }
   if (data.note) {
     const context = node(data.role ? 'details' : 'div','','context');
@@ -167,7 +176,8 @@ $('export').addEventListener('click',() => {
     'Simulation – Rollenrede ist kein Originalzitat.',
     ...transcript.map(item => item.user ? 'Sie: ' + item.user : [
       item.role && 'Hindenburg (simuliert): ' + item.role,
-      item.note && 'Historischer Kommentar: ' + item.note
+      item.note && 'Historischer Kommentar: ' + item.note,
+      item.memoir && 'Aus meinem Leben – ' + item.memoir.label + ': ' + item.memoir.url
     ].filter(Boolean).join('\n')),
     'Meine Notiz:\n' + ($('verdict').value.trim() || '—'),
     'Quellen:\n' + [...document.querySelectorAll('#quellen li a')].map((a,i)=> `[${i+1}] ${a.href}`).join('\n')
