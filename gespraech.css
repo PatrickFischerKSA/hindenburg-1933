@@ -211,14 +211,17 @@ li:target { background: #504335; }
   text-shadow: 0 1px 8px #17130c;
 }
 .encounter .compose {
-  background: radial-gradient(ellipse at 44% 38%, #3d322696, #322a2155 52%, transparent 78%);
+  background: none;
 }
 .encounter .compose textarea {
-  background: #181612a6;
-  border-color: #dfbe8640;
+  background:
+    linear-gradient(90deg, #211e19b8, transparent 96%),
+    radial-gradient(ellipse at 22% 44%, #211e19b8, transparent 72%);
+  border-color: transparent;
 }
-.encounter .compose textarea:focus {
-  border-color: var(--warm);
+.encounter .compose textarea:focus-visible {
+  outline: 2px solid var(--warm);
+  outline-offset: 2px;
 }
 @media (max-width: 620px) {
   .encounter > .office-photo, .encounter::before { height: min(100%, 28rem); }
