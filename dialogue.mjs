@@ -110,8 +110,28 @@ export function messagesFor(input, transcript, sources = selectSources(input, tr
   ];
 }
 
+
+function reviewedArmisticeReply(input, transcript) {
+  const previousWasArmistice = transcript.at(-1)?.sources?.some(source => source.anchor === 'p394');
+  const armistice = /\bwaffenstillstand\p{L}*\b/iu.test(input) &&
+    (!/\b(?:1940|1945|zweiten weltkrieg)\b/iu.test(input) || /\b1918\b/u.test(input));
+  const blame = /dolchsto[ßs]+|(?:heimat|schuld).{0,45}(?:schuld|heimat)|untersuchungsausschuss/iu.test(input);
+  const followUp = previousWasArmistice && /schuldzuweisung|widerspruch|wie passt|verantwortung|^warum[?!.\s]*$/iu.test(input);
+  if (!armistice && !blame && !followUp) return;
+
+  // Use the same original documents for the question and its follow-up.
+  const sources = selectSources('Waffenstillstand 1918');
+  const role = !armistice
+    ? 'Vor dem Untersuchungsausschuss im November 1919 wies ich der Heimat Verantwortung für den Zusammenbruch zu. Halten Sie das neben meinen Bericht über den September 1918: Ludendorff und ich drängten wegen der militärischen Lage selbst auf einen Friedensschritt. Das war unsere Entscheidung als Heeresleitung.'
+    : 'Ende September 1918 schlugen Ludendorff und ich dem Kaiser einen Friedensschritt vor. Wie ich in meinen Erinnerungen schildere, nahm die Kampfkraft unserer Truppen ab, und an der Westfront mussten wir weiter zurückweichen. Der Waffenstillstand wurde am 11. November unterzeichnet. Vor dem Untersuchungsausschuss im November 1919 schob ich der Heimat Verantwortung für den Zusammenbruch zu.';
+  return {role, sources, historicalContext: historicalContext(sources) +
+    ' Die öffentliche Aussage ist belegt. Welche privaten Motive Hindenburg dabei hatte, lässt sich aus diesen Stellen nicht sicher ableiten.'};
+}
+
 let enginePromise;
 export async function generateReply(input, transcript, progress) {
+  const reviewed = reviewedArmisticeReply(input, transcript);
+  if (reviewed) return reviewed;
   if (!globalThis.navigator?.gpu) {
     throw new Error('Dieser Browser bietet kein WebGPU. Öffnen Sie die Seite auf einem Gerät mit WebGPU, etwa in einer aktuellen Desktop-Version von Chrome oder Edge.');
   }
